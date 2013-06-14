@@ -3,7 +3,7 @@
   <groupId>org.shininet.minecraft</groupId>
   <artifactId>mcBootstrap</artifactId>
   <packaging>jar</packaging>
-  <version>2</version>
+  <version>3</version>
   <name>MinecraftDev</name>
 
   <properties>
@@ -14,7 +14,7 @@
     <dependency>
       <groupId>net.sf.jopt-simple</groupId>
       <artifactId>jopt-simple</artifactId>
-      <version>4.4</version>
+      <version>4.5</version>
     </dependency>
   </dependencies>
 

@@ -5,12 +5,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.net.BindException;
 import java.net.Proxy;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLHandshakeException;
 
 public class Downloader
   implements Runnable
@@ -119,13 +121,22 @@ public class Downloader
         }
       } catch (Exception e) {
         log(new StringBuilder().append("Exception: ").append(e.toString()).toString());
+        suggestHelp(e);
       }
     }
 
     log("Unable to download remote file. Check your internet connection/proxy settings.");
   }
 
-  public void log(String str) {
+  public void suggestHelp(Throwable t) {
+    if ((t instanceof BindException))
+      log("Recognized exception: the likely cause is a broken ipv4/6 stack. Check your TCP/IP settings.");
+    else if ((t instanceof SSLHandshakeException))
+      log("Recognized exception: the likely cause is a set of broken/missing root-certificates. Check your java install and perhaps reinstall it.");
+  }
+
+  public void log(String str)
+  {
     bootstrap.println(str);
   }
 

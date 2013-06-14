@@ -3,6 +3,7 @@ package net.minecraft.bootstrap;
 import LZMA.LzmaInputStream;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -310,6 +311,7 @@ public class Bootstrap extends JFrame
   public static void main(String[] args) throws IOException { System.setProperty("java.net.preferIPv4Stack", "true");
 
     OptionParser optionParser = new OptionParser();
+    optionParser.allowsUnrecognizedOptions();
 
     optionParser.accepts("help", "Show help").forHelp();
     optionParser.accepts("force", "Force updating");
@@ -319,6 +321,7 @@ public class Bootstrap extends JFrame
     OptionSpec<String> proxyUserOption = optionParser.accepts("proxyUser", "Optional").withRequiredArg();
     OptionSpec<String> proxyPassOption = optionParser.accepts("proxyPass", "Optional").withRequiredArg();
     OptionSpec<File> workingDirectoryOption = optionParser.accepts("workdir", "Optional").withRequiredArg().ofType(File.class).defaultsTo(Util.getWorkingDirectory(), new File[0]);
+    OptionSpec<String> nonOptions = optionParser.nonOptions();
     OptionSet optionSet;
     try { optionSet = optionParser.parse(args);
     } catch (OptionException e) {
@@ -366,7 +369,7 @@ public class Bootstrap extends JFrame
       throw new FatalBootstrapError("Unable to create directory: " + workingDirectory);
     }
 
-    List<String> strings = optionSet.nonOptionArguments();
+    List<String> strings = optionSet.valuesOf(nonOptions);
     String[] remainderArgs = (String[])strings.toArray(new String[strings.size()]);
 
     boolean force = optionSet.has("force");
@@ -375,12 +378,11 @@ public class Bootstrap extends JFrame
     try
     {
       frame.execute(force);
-    }
-    catch (Throwable t) {
-      frame.println("FATAL ERROR: " + t.toString());
-      for (StackTraceElement stackTraceElement : t.getStackTrace()) {
-        frame.println("\tat " + stackTraceElement.toString());
-      }
+    } catch (Throwable t) {
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      t.printStackTrace(new PrintStream(outputStream));
+
+      frame.println("FATAL ERROR: " + outputStream.toString());
       frame.println("\nPlease fix the error and restart.");
     } }
 
